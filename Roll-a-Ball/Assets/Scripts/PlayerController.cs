@@ -10,8 +10,7 @@ public class PlayerController : MonoBehaviour
 	public Text winText;
     public Text timerText;
     public Button newGameButton;
-
-    private GameObject button;
+    
     private bool canMove;
     private int maxSeconds = 30;
     private Color redScale;
@@ -22,16 +21,15 @@ public class PlayerController : MonoBehaviour
 
     void Start()
 	{
-		rb = GetComponent<Rigidbody> ();
-        button = GameObject.Find("New Game Button");
+		rb = GetComponent<Rigidbody>();
+        newGameButton.GetComponent<Button>().onClick.AddListener(StartNewGame);
         StartNewGame();
 	}
 
     void StartNewGame()
     {
         {
-            newGameButton.GetComponent<Button>().interactable = false;
-            button.SetActive(false);
+            newGameButton.gameObject.SetActive(false);
             print("Started new game.");
             count = 0;
             setCountText();
@@ -55,7 +53,7 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (!gameOver && !button.GetComponent<Button>().IsActive())
+        if (!gameOver && !newGameButton.IsActive())
         {
             elapsedTime += Time.deltaTime;
             float timeLeft = maxSeconds - elapsedTime;
@@ -87,7 +85,9 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (canMove)
+            {
                 ShowMenu();
+            }
             else
             {
                 resumeGame();
@@ -98,13 +98,12 @@ public class PlayerController : MonoBehaviour
     private void resumeGame()
     {
         canMove = true;
-        button.SetActive(false);
-        newGameButton.GetComponent<Button>().interactable = false;
+        newGameButton.gameObject.SetActive(false);
     }
 
     private void FixedUpdate()
     {
-        if (canMove && !button.GetComponent<Button>().IsActive())
+        if (canMove)
         {
             float moveHorizontal = Input.GetAxis("Horizontal");
             float moveVertical = Input.GetAxis("Vertical");
@@ -113,16 +112,11 @@ public class PlayerController : MonoBehaviour
 
             rb.AddForce(movement * speed);
         }
-        else
-        {
-            rb.Sleep();
-            rb.WakeUp();
-        }
     }
 
 	void OnTriggerEnter(Collider other)
 	{
-        if (!gameOver)
+        if (!gameOver && !newGameButton.IsActive())
         {
             if (other.gameObject.CompareTag("Pick Up"))
             {
@@ -152,8 +146,6 @@ public class PlayerController : MonoBehaviour
     private void ShowMenu()
     {
         canMove = false;
-        button.SetActive(true);
-        newGameButton.GetComponent<Button>().interactable = true;
-        newGameButton.onClick.AddListener(StartNewGame);
+        newGameButton.gameObject.SetActive(true);
     }
 }
