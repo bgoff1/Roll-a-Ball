@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine.UI;
 using UnityEngine;
+using System;
 
 public class PlayerController : MonoBehaviour
 {
@@ -8,7 +9,10 @@ public class PlayerController : MonoBehaviour
 	public Text countText;
 	public Text winText;
     public Text timerText;
+    public Button newGameButton;
 
+    private GameObject button;
+    private bool canMove;
     private int maxSeconds = 30;
     private Color redScale;
     private Rigidbody rb;
@@ -19,12 +23,15 @@ public class PlayerController : MonoBehaviour
     void Start()
 	{
 		rb = GetComponent<Rigidbody> ();
+        button = GameObject.Find("New Game Button");
         StartNewGame();
 	}
 
     void StartNewGame()
     {
         {
+            newGameButton.GetComponent<Button>().interactable = false;
+            button.SetActive(false);
             print("Started new game.");
             count = 0;
             setCountText();
@@ -32,6 +39,7 @@ public class PlayerController : MonoBehaviour
             gameOver = false;
             elapsedTime = 0;
             redScale = new Color(0, 0, 0);
+            canMove = true;
             
             GameObject[] pickups = Resources.FindObjectsOfTypeAll(typeof(GameObject)) as GameObject[];
             foreach (GameObject g in pickups)
@@ -39,9 +47,7 @@ public class PlayerController : MonoBehaviour
                 if (g.CompareTag("Pick Up") || g.CompareTag("Bonus Pickup"))
                     g.SetActive(true);
             }
-            
-            Vector3 resetPosition = new Vector3(0, (float)0.5, 0);
-            rb.MovePosition(resetPosition);
+            rb.MovePosition(new Vector3(0, (float)0.5, 0));
             rb.Sleep();
             rb.WakeUp();
         }
@@ -49,7 +55,7 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (!gameOver)
+        if (!gameOver && !button.GetComponent<Button>().IsActive())
         {
             elapsedTime += Time.deltaTime;
             float timeLeft = maxSeconds - elapsedTime;
@@ -78,21 +84,40 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        // Did user press N
-        if (Input.GetKeyDown(KeyCode.N))
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
-            StartNewGame();
+            if (canMove)
+                ShowMenu();
+            else
+            {
+                resumeGame();
+            }
         }
+    }
+
+    private void resumeGame()
+    {
+        canMove = true;
+        button.SetActive(false);
+        newGameButton.GetComponent<Button>().interactable = false;
     }
 
     private void FixedUpdate()
     {
-		float moveHorizontal = Input.GetAxis ("Horizontal");
-		float moveVertical = Input.GetAxis ("Vertical");
+        if (canMove && !button.GetComponent<Button>().IsActive())
+        {
+            float moveHorizontal = Input.GetAxis("Horizontal");
+            float moveVertical = Input.GetAxis("Vertical");
 
-		Vector3 movement = new Vector3 (moveHorizontal, 0, moveVertical);
+            Vector3 movement = new Vector3(moveHorizontal, 0, moveVertical);
 
-		rb.AddForce (movement * speed);
+            rb.AddForce(movement * speed);
+        }
+        else
+        {
+            rb.Sleep();
+            rb.WakeUp();
+        }
     }
 
 	void OnTriggerEnter(Collider other)
@@ -114,8 +139,6 @@ public class PlayerController : MonoBehaviour
         }
 	}
 
-    //
-
     void setCountText()
     {
         countText.text = "Count: " + count.ToString();
@@ -125,5 +148,12 @@ public class PlayerController : MonoBehaviour
             timerText.color = Color.blue;
             gameOver = true;
         }
+    }
+    private void ShowMenu()
+    {
+        canMove = false;
+        button.SetActive(true);
+        newGameButton.GetComponent<Button>().interactable = true;
+        newGameButton.onClick.AddListener(StartNewGame);
     }
 }
