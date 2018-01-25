@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Pick Up
   - Bonus Pickup
+  - Mine
   layers:
   - Default
   - TransparentFX

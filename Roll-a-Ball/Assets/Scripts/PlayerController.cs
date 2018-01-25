@@ -10,7 +10,8 @@ public class PlayerController : MonoBehaviour
 	public Text winText;
     public Text timerText;
     public Button newGameButton;
-    
+
+    private int distanceToLauch = 100;
     private bool canMove;
     private int maxSeconds = 30;
     private Color redScale;
@@ -42,7 +43,7 @@ public class PlayerController : MonoBehaviour
             GameObject[] pickups = Resources.FindObjectsOfTypeAll(typeof(GameObject)) as GameObject[];
             foreach (GameObject g in pickups)
             {
-                if (g.CompareTag("Pick Up") || g.CompareTag("Bonus Pickup"))
+                if (g.CompareTag("Pick Up") || g.CompareTag("Bonus Pickup") || g.CompareTag("Mine"))
                     g.SetActive(true);
             }
             rb.MovePosition(new Vector3(0, (float)0.5, 0));
@@ -112,12 +113,28 @@ public class PlayerController : MonoBehaviour
 
             rb.AddForce(movement * speed);
         }
+        if (rb.position.x > 21 || rb.position.z > 21 || rb.position.x < -21 || rb.position.z < -21)
+        {
+            canMove = false;
+            rb.Sleep();
+            rb.WakeUp();
+            rb.MovePosition(new Vector3(0, (float)0.5, 0));
+            gameOver = true;
+            winText.text = "You Lose!";
+            ShowMenu();
+        }
     }
 
 	void OnTriggerEnter(Collider other)
 	{
         if (!gameOver && !newGameButton.IsActive())
         {
+            if (other.gameObject.CompareTag("Mine"))
+            {
+                other.gameObject.SetActive(false);
+                rb.AddForce((new Vector3(0, distanceToLauch, 0)) * speed);
+
+            }
             if (other.gameObject.CompareTag("Pick Up"))
             {
                 other.gameObject.SetActive(false);
