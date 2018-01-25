@@ -1380,10 +1380,9 @@ GameObject:
   - component: {fileID: 1478036819}
   - component: {fileID: 1478036824}
   - component: {fileID: 1478036823}
-  - component: {fileID: 1478036825}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1469,7 +1468,6 @@ MonoBehaviour:
   countText: {fileID: 324688417}
   winText: {fileID: 1129367099}
   timerText: {fileID: 807809936}
-  rb: {fileID: 0}
 --- !u!54 &1478036824
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1485,20 +1483,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &1478036825
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1478036818}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0df877bc501cb0c41a61711e3693eaa4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  timerText: {fileID: 807809936}
-  winText: {fileID: 1129367099}
-  countText: {fileID: 324688417}
 --- !u!1 &1493921312
 GameObject:
   m_ObjectHideFlags: 0

@@ -9,16 +9,81 @@ public class PlayerController : MonoBehaviour
 	public Text winText;
     public Text timerText;
 
-	public Rigidbody rb;
+    private int maxSeconds = 30;
+    private Color redScale;
+    private Rigidbody rb;
 	private int count;
+    private float elapsedTime;
+    private bool gameOver;
 
-	void Start()
+    void Start()
 	{
 		rb = GetComponent<Rigidbody> ();
-		count = 0;
-		setCountText();
-		winText.text = "";
+        StartNewGame();
 	}
+
+    void StartNewGame()
+    {
+        {
+            print("Started new game.");
+            count = 0;
+            setCountText();
+            winText.text = "";
+            gameOver = false;
+            elapsedTime = 0;
+            redScale = new Color(0, 0, 0);
+            
+            GameObject[] pickups = Resources.FindObjectsOfTypeAll(typeof(GameObject)) as GameObject[];
+            foreach (GameObject g in pickups)
+            {
+                if (g.CompareTag("Pick Up") || g.CompareTag("Bonus Pickup"))
+                    g.SetActive(true);
+            }
+            
+            Vector3 resetPosition = new Vector3(0, (float)0.5, 0);
+            rb.MovePosition(resetPosition);
+            rb.Sleep();
+            rb.WakeUp();
+        }
+    }
+
+    private void Update()
+    {
+        if (!gameOver)
+        {
+            elapsedTime += Time.deltaTime;
+            float timeLeft = maxSeconds - elapsedTime;
+            string seconds = (timeLeft % 60).ToString("f1");
+            
+            if ((count * 1.875) > elapsedTime)
+            {
+                redScale.r = 0;
+                redScale.g = 0;
+                redScale.b = elapsedTime * (float)0.03;
+            }
+            else
+            {
+                redScale.r = elapsedTime * (float)0.03;
+                redScale.g = 0;
+                redScale.b = 0;
+            }
+
+            timerText.text = seconds;
+            timerText.color = redScale;
+
+            if (timeLeft <= 0)
+            {
+                gameOver = true;
+                winText.text = "You Lose!";
+            }
+        }
+
+        // Did user press N
+        if (Input.GetKeyDown(KeyCode.N))
+        {
+            StartNewGame();
+        }
+    }
 
     private void FixedUpdate()
     {
@@ -32,19 +97,24 @@ public class PlayerController : MonoBehaviour
 
 	void OnTriggerEnter(Collider other)
 	{
-		if (other.gameObject.CompareTag("Pick Up")) 
-		{
-			other.gameObject.SetActive(false);
-			count++;
-			setCountText();
-		}
-        else if (other.gameObject.CompareTag("Bonus Pickup"))
+        if (!gameOver)
         {
-            other.gameObject.SetActive(false);
-            count = count + 5;
-            setCountText();
+            if (other.gameObject.CompareTag("Pick Up"))
+            {
+                other.gameObject.SetActive(false);
+                count++;
+                setCountText();
+            }
+            else if (other.gameObject.CompareTag("Bonus Pickup"))
+            {
+                other.gameObject.SetActive(false);
+                count = count + 5;
+                setCountText();
+            }
         }
 	}
+
+    //
 
     void setCountText()
     {
@@ -53,6 +123,7 @@ public class PlayerController : MonoBehaviour
         {
             winText.text = "You Win!";
             timerText.color = Color.blue;
+            gameOver = true;
         }
     }
 }
